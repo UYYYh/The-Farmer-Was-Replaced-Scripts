@@ -1,7 +1,6 @@
 from constants import DIM
 from movements import goto
-from p_mappers import pmap_area_all, pmap
-from helpers import here, fertilise_harvest, till_plant
+from helpers import fertilise_harvest, till_plant
 from scheduler import schedule_batch, execute_queue
 
 # Each bucket is a list of lists. 
@@ -26,13 +25,16 @@ def _reset_task(arg):
 	return petals
 
 def _reset():
+	for field in _buckets:
+		for y in range(DIM):
+			field[y] = []
 	batch = []
 	for i in range(DIM):
 		batch.append((0, i, _reset_task, None))
 	schedule_batch(batch)
-	res = execute_queue()
-	for x in range(DIM):
-		for y in range(DIM):
+	res = execute_queue()[0]
+	for y in range(DIM):
+		for x in range(DIM):
 			_buckets[_MAX_PETALS - res[y][x]][y].append(x)
 
 def _harvest_task(arg):
@@ -47,10 +49,11 @@ def _cycle():
 		batch = []
 		for i in range(len(bucket)):
 			row = bucket[i]
-			if not row:
+			if len(row) == 0:
 				continue
 			batch.append((0, i, _harvest_task, row))
-		schedule_batch(batch)
+		if len(batch) > 0:
+			schedule_batch(batch)
 	execute_queue()
 
 def farm(cycles):
@@ -59,4 +62,3 @@ def farm(cycles):
 	for _ in range(cycles):
 		_cycle()
 farm(1000)
-	

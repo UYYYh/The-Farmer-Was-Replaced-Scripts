@@ -21,7 +21,7 @@ def _execute_batch(batch):
 		goto(x, y)
 		drones.append(async_spawn_drone_1(func, arg))
 	for drone in drones:
-		res.append(wait_for_drone(drone)) 
+		res.append(wait_for(drone)) 
 	return res
 
 def _execute_batch_nr(batch):
@@ -31,12 +31,12 @@ def _execute_batch_nr(batch):
 
 def execute_queue():
 	res = []
-	while _queue:
-		batch = deque_popleft(_queue)
+	while deque_length(_queue) > 0:
+		batch = deque_pop_left(_queue)
 		res.append(_execute_batch(batch))
 	return res
 
 def execute_queue_nr():
-	while _queue:
-		batch = deque_popleft(_queue)
+	while deque_length(_queue) > 0:
+		batch = deque_pop_left(_queue)
 		_execute_batch_nr(batch)

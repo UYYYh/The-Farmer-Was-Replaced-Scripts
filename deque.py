@@ -13,8 +13,7 @@ def deque_pop_left(dq):
 	head, tail, storage = dq
 	if head == tail:
 		return None
-	value = storage[head]
-	storage.remove(head)
+	value = storage.pop(head)
 	dq[0] = head + 1
 	return value
 
@@ -22,7 +21,7 @@ def deque_pop(dq):
 	head, tail, storage = dq
 	if head == tail:
 		return None
-	value = storage[tail - 1]
+	value = storage.pop(tail - 1)
 	dq[1] = tail - 1
 	return value
 

@@ -27,9 +27,13 @@ def try_harvest():
 	return False
 	
 def fertilise_harvest():
+	# Bail out on an empty tile: can_harvest() would stay False and use_item()
+	# would keep failing, so the loop below would never terminate.
+	if get_entity_type() == None:
+		return False
 	while not can_harvest():
 		use_item(Items.Fertilizer)
-	harvest()
+	return harvest()
 	
 def here():
 	return (get_pos_x(), get_pos_y())
