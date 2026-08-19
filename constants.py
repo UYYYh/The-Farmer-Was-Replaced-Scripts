@@ -1,0 +1,1 @@
+DIM = get_world_size()
