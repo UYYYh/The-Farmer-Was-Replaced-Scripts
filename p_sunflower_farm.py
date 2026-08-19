@@ -5,16 +5,15 @@ from helpers import here, fertilise_harvest, till_plant
 from scheduler import schedule_batch, execute_queue
 
 # Each bucket is a list of lists. 
+_MIN_PETALS = 7
+_MAX_PETALS = 15
 _buckets = []
 
 def _initialise():
-	for _ in range(9):
+	for _ in range(_MAX_PETALS - _MIN_PETALS + 1):
 		field = []
 		for _ in range(DIM):
-			row = []
-			for _ in range(DIM):
-				row.append(0)
-			field.append(row)
+			field.append([])
 		_buckets.append(field)
 
 def _reset_task(arg):
@@ -34,7 +33,7 @@ def _reset():
 	res = execute_queue()
 	for x in range(DIM):
 		for y in range(DIM):
-			_buckets[15 - res[y][x]][y].append(x)
+			_buckets[_MAX_PETALS - res[y][x]][y].append(x)
 
 def _harvest_task(arg):
 	y = get_pos_y()
@@ -53,7 +52,7 @@ def _cycle():
 			batch.append((0, i, _harvest_task, row))
 		schedule_batch(batch)
 	execute_queue()
-	
+
 def farm(cycles):
 	clear()
 	_initialise()
