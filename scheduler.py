@@ -12,31 +12,31 @@ from helpers import async_spawn_drone_1
 _queue = deque()
 
 def schedule_batch(tasks):
-    deque_append(_queue, tasks)
+	deque_append(_queue, tasks)
 
 def _execute_batch(batch):
-    drones = []
-    res = []
-    for x, y, func, arg in batch:
-        goto(x, y)
-        drones.append(async_spawn_drone_1(func, arg))
-    for drone in drones:
-        res.append(wait_for_drone(drone)) 
-    return res
+	drones = []
+	res = []
+	for x, y, func, arg in batch:
+		goto(x, y)
+		drones.append(async_spawn_drone_1(func, arg))
+	for drone in drones:
+		res.append(wait_for_drone(drone)) 
+	return res
 
 def _execute_batch_nr(batch):
-    for x, y, func, arg in batch:
-        goto(x, y)
-        async_spawn_drone_1(func, arg)
+	for x, y, func, arg in batch:
+		goto(x, y)
+		async_spawn_drone_1(func, arg)
 
 def execute_queue():
-    res = []
-    while _queue:
-        batch = deque_popleft(_queue)
-        res.append(_execute_batch(batch))
-    return res
+	res = []
+	while _queue:
+		batch = deque_popleft(_queue)
+		res.append(_execute_batch(batch))
+	return res
 
 def execute_queue_nr():
-    while _queue:
-        batch = deque_popleft(_queue)
-        _execute_batch_nr(batch)
+	while _queue:
+		batch = deque_popleft(_queue)
+		_execute_batch_nr(batch)
