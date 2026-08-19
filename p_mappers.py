@@ -1,6 +1,8 @@
 from movements import goto, flip
 from constants import DIM
+from helpers import arrs, arrs_of
 
+# Generic parallel mapping functions for rows, columns, and areas. Inefficient.
 def pmap(func, arr):
 	res    = []
 	drones = []
@@ -12,6 +14,28 @@ def pmap(func, arr):
 	for drone in drones:
 		res.append(wait_for(drone))
 	return res
+
+# Takes a func that takes a list of target x-coordinates for a specific row.
+def pmap_coords(coords, func):
+	rows = arrs(DIM)
+	drones = []
+
+	for x, y in coords:
+		rows[y].append(x)
+
+	for row in rows:
+		if not row:
+			continue
+		drone_no = spawn_drone(func, row)
+		while drone_no == None:
+			drone_no = spawn_drone(func, row)
+		drones.append(drone_no)
+	for drone in drones:
+		wait_for(drone)
+
+
+	
+
 
 
 def pmap_rows(lo, hi, func):
@@ -66,4 +90,5 @@ def pmap_cols_nr(lo, hi, func):
 			
 def pmap_area_all_nr(func):
 	pmap_cols_nr(0, DIM - 1, func)
+
 
