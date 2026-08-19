@@ -1,42 +1,39 @@
-from constants import DIM
-from movements import goto, flip 
-from deque import *
+from movements import goto
 from helpers import async_spawn_drone_1
 
-# The scheduler manages batches of tasks, allowing concurrent execution of tasks within the same batch.
-# Each batch is represented as a list of tasks. The scheduler maintains a queue of these batches, and executes them sequentially. 
-# A task is represented by (x, y, func, arg), where the task starts at (x, y) and executes func(arg) at that location.
-# Note that func MUST be a unary function as the game does not support *args syntax. 
+# Runs a batch of tasks concurrently, one drone per task.
+# A task is (x, y, func, arg): a drone starts at (x, y) and evaluates func(arg) there.
+# func MUST be unary as the game does not support *args syntax.
 
-# Contains batches of tasks, if two tasks are in the same batch, they can be executed concurrently.
-_queue = deque()
-
-def schedule_batch(tasks):
-	deque_append(_queue, tasks)
-
-def _execute_batch(batch):
+# Runs tasks[lo:hi] concurrently and appends their results to res in task order.
+def _run_wave(tasks, lo, hi, res):
 	drones = []
-	res = []
-	for x, y, func, arg in batch:
+	for i in range(lo, hi - 1):
+		x, y, func, arg = tasks[i]
 		goto(x, y)
 		drones.append(async_spawn_drone_1(func, arg))
-	for drone in drones:
-		res.append(wait_for(drone)) 
-	return res
 
-def _execute_batch_nr(batch):
-	for x, y, func, arg in batch:
-		goto(x, y)
-		async_spawn_drone_1(func, arg)
+	# The main drone counts against max_drones(), so it runs the last task of the
+	# wave itself rather than holding a slot idle inside wait_for().
+	x, y, func, arg = tasks[hi - 1]
+	goto(x, y)
+	own = func(arg)
 
-def execute_queue():
+	for i in range(len(drones)):
+		res.append(wait_for(drones[i]))
+	res.append(own)
+
+def run_batch(tasks):
 	res = []
-	while deque_length(_queue) > 0:
-		batch = deque_pop_left(_queue)
-		res.append(_execute_batch(batch))
+	n = len(tasks)
+	# max_drones() counts the drone this code is running on, so a wave of that
+	# width is exactly one spawn per free slot plus the main drone's own task.
+	width = max_drones()
+	if width < 1:
+		width = 1
+	lo = 0
+	while lo < n:
+		hi = min(lo + width, n)
+		_run_wave(tasks, lo, hi, res)
+		lo = hi
 	return res
-
-def execute_queue_nr():
-	while deque_length(_queue) > 0:
-		batch = deque_pop_left(_queue)
-		_execute_batch_nr(batch)

@@ -1,7 +1,7 @@
 from constants import DIM
 from movements import goto
 from helpers import fertilise_harvest, till_plant
-from scheduler import schedule_batch, execute_queue
+from scheduler import run_batch
 
 # Each bucket is a list of lists. 
 _MIN_PETALS = 7
@@ -31,8 +31,8 @@ def _reset():
 	batch = []
 	for i in range(DIM):
 		batch.append((0, i, _reset_task, None))
-	schedule_batch(batch)
-	res = execute_queue()[0]
+	# One result per task, in task order, so res[y] is row y's petal counts.
+	res = run_batch(batch)
 	for y in range(DIM):
 		for x in range(DIM):
 			_buckets[_MAX_PETALS - res[y][x]][y].append(x)
@@ -52,9 +52,9 @@ def _cycle():
 			if len(row) == 0:
 				continue
 			batch.append((0, i, _harvest_task, row))
-		if len(batch) > 0:
-			schedule_batch(batch)
-	execute_queue()
+		# Every sunflower in a bucket has the same petal count, so the order the
+		# batch runs in does not matter -- only that buckets run highest petals first.
+		run_batch(batch)
 
 def farm(cycles):
 	clear()
