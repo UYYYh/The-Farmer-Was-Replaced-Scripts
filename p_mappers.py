@@ -1,6 +1,19 @@
 from movements import goto, flip
 from constants import DIM
 
+def pmap(func, arr):
+	res    = []
+	drones = []
+	for elem in arr:
+		drone_no = spawn_drone(func, elem)
+		while drone_no == None:
+			drone_no = spawn_drone(func, elem)
+		drones.append(drone_no)
+	for drone in drones:
+		res.append(wait_for(drone))
+	return res
+
+
 def pmap_rows(lo, hi, func):
 	goto(0, lo)
 	drones = []
@@ -14,7 +27,7 @@ def pmap_rows(lo, hi, func):
 	for drone in drones:
 		result.append(wait_for(drone))
 	return result
-	
+
 	
 def pmap_cols(lo, hi, func):
 	goto(lo, 0)
@@ -38,18 +51,6 @@ def pmap_area_all(func):
 			move(East)
 		return res
 	return pmap_rows(0, DIM - 1, row)
-	
-def pmap(func, arr):
-	res    = []
-	drones = []
-	for elem in arr:
-		drone_no = spawn_drone(func, elem)
-		while drone_no == None:
-			drone_no = spawn_drone(func, elem)
-		drones.append(drone_no)
-	for drone in drones:
-		res.append(wait_for(drone))
-	return res
 
 def pmap_rows_nr(lo, hi, func):
 	goto(0, lo)
@@ -65,3 +66,4 @@ def pmap_cols_nr(lo, hi, func):
 			
 def pmap_area_all_nr(func):
 	pmap_cols_nr(0, DIM - 1, func)
+

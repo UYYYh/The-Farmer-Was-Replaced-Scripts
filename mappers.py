@@ -33,8 +33,8 @@ def map_range(lower_left_corner, upper_right_corner, func):
 def map_area_all(func = till):
 	return map_area((0, 0), (DIM - 1, DIM - 1), func)
 
-def map_range_all(func, checkered = False):
-	return map_range((0, 0), (DIM - 1, DIM - 1), func, checkered)
+def map_range_all(func):
+	return map_range((0, 0), (DIM - 1, DIM - 1), func)
 
 def map_cols(x_lo, x_hi, func):
 	for x in range(x_lo, x_hi + 1):
